@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func writeStringsToFile(input []string, fileName string) error {
+func WriteStringsToFile(input []string, fileName string) error {
 	file, err := getOrCreateFile(fileName)
 	if err != nil {
 		return errors.New("writeStringToFileError: " + err.Error())
