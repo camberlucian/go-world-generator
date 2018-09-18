@@ -21,6 +21,6 @@ var GeoTypes = map[int]string{
 }
 
 var Symbols = map[string]string{
-	"Ocean": "\u1F30A",
+	"Ocean": " _ ",
 	"Land":  "[ ]",
 }
