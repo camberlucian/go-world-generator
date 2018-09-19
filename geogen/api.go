@@ -159,7 +159,6 @@ func FloodMap(world *World) *World {
 func NormalizeElevation(world *World, passes int) *World {
 	worldMap := world.Tiles
 	for n := 0; n < passes; n++ {
-		fmt.Println("PASS: " + strconv.Itoa(n))
 		for k := 0; k < len(worldMap); k++ {
 			row := &worldMap[k]
 			for l := 0; l < len(*row); l++ {
