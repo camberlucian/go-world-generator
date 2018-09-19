@@ -8,7 +8,7 @@ import (
 )
 
 func WriteStringsToFile(input *[]string, fileName string) error {
-	file, err := getOrCreateFile(fileName, true)
+	file, err := GetOrCreateFile(fileName, true)
 	if err != nil {
 		return errors.New("writeStringToFileError: " + err.Error())
 	}
@@ -23,7 +23,7 @@ func WriteStringsToFile(input *[]string, fileName string) error {
 	return nil
 }
 
-func getOrCreateFile(fileName string, overwrite bool) (file *os.File, err error) {
+func GetOrCreateFile(fileName string, overwrite bool) (file *os.File, err error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return file, errors.New("GetOrCreateFileError: " + err.Error())

@@ -1,10 +1,5 @@
 package types
 
-type World struct {
-	PrintedFileName string
-	CodedFileName   string
-	Tiles           *[][]Tile
-}
 
 type Tile struct {
 	X         int

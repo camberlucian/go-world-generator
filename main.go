@@ -4,9 +4,15 @@ import (
 	"fmt"
 
 	"github.com/camberlucian/go-world-generator/geogen"
+	"github.com/camberlucian/go-world-generator/render"
 )
 
 func main() {
+	render.RenderSolidImage()
+
+}
+
+func GenerateWorld() {
 	fmt.Println("GENERATING WORLD")
 	world := geogen.GenerateBasicMap(50, 50, -16, 18, "coasts")
 	fmt.Println("NORMALIZING ELEVATION")
@@ -30,5 +36,4 @@ func main() {
 	} else {
 		fmt.Println("DONE")
 	}
-
 }
