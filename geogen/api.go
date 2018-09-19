@@ -10,7 +10,42 @@ import (
 	"github.com/camberlucian/go-world-generator/utils"
 )
 
-func GenerateBasicMap(xVal int, yVal int, name string) *types.World {
+type World struct {
+	PrintedFileName string
+	CodedFileName   string
+	Tiles           [][]types.Tile
+}
+
+func (w *World) GetTile(y int, x int) *types.Tile {
+	return &w.Tiles[y][x]
+}
+
+func (w *World) GetSurroundingTiles(y int, x int) []*types.Tile {
+	type pair struct {
+		Y int
+		X int
+	}
+	width := len(w.Tiles[0]) - 1
+	potentials := []pair{}
+	tiles := []*types.Tile{}
+	potentials = append(potentials, pair{y + 1, x - 1})
+	potentials = append(potentials, pair{y + 1, x})
+	potentials = append(potentials, pair{y + 1, x + 1})
+	potentials = append(potentials, pair{y, x - 1})
+	potentials = append(potentials, pair{y, x + 1})
+	potentials = append(potentials, pair{y - 1, x - 1})
+	potentials = append(potentials, pair{y - 1, x})
+	potentials = append(potentials, pair{y - 1, x + 1})
+	for _, p := range potentials {
+		if p.X < 0 || p.Y < 0 || p.X > width || p.Y > width {
+			continue
+		}
+		tiles = append(tiles, w.GetTile(p.Y, p.X))
+	}
+	return tiles
+}
+
+func GenerateBasicMap(xVal int, yVal int, name string) *World {
 	worldMap := [][]types.Tile{}
 	fmt.Println(types.GeoTypes[2])
 	fmt.Println(types.Symbols[types.GeoTypes[2]])
@@ -27,15 +62,15 @@ func GenerateBasicMap(xVal int, yVal int, name string) *types.World {
 		}
 		worldMap = append(worldMap, row)
 	}
-	world := types.World{
+	world := World{
 		PrintedFileName: name + "-Printed.txt",
 		CodedFileName:   name + "-Coded.csv",
-		Tiles:           &worldMap,
+		Tiles:           worldMap,
 	}
 	return &world
 }
 
-func GenerateThenFloodBasicMap(xVal int, yVal int, name string) *types.World {
+func GenerateThenFloodBasicMap(xVal int, yVal int, name string) *World {
 	worldMap := [][]types.Tile{}
 	fmt.Println(types.GeoTypes[2])
 	fmt.Println(types.Symbols[types.GeoTypes[2]])
@@ -61,15 +96,15 @@ func GenerateThenFloodBasicMap(xVal int, yVal int, name string) *types.World {
 			}
 		}
 	}
-	world := types.World{
+	world := World{
 		PrintedFileName: name + "-Printed.txt",
 		CodedFileName:   name + "-Coded.csv",
-		Tiles:           &worldMap,
+		Tiles:           worldMap,
 	}
 	return &world
 }
 
-func GenerateBasicIsland(xVal int, yVal int, offset int, name string) *types.World {
+func GenerateBasicIsland(xVal int, yVal int, offset int, name string) *World {
 	worldMap := [][]types.Tile{}
 	fmt.Println(types.GeoTypes[2])
 	fmt.Println(types.Symbols[types.GeoTypes[2]])
@@ -90,18 +125,32 @@ func GenerateBasicIsland(xVal int, yVal int, offset int, name string) *types.Wor
 		}
 		worldMap = append(worldMap, row)
 	}
-	world := types.World{
+	world := World{
 		PrintedFileName: name + "-Printed.txt",
 		CodedFileName:   name + "-Coded.csv",
-		Tiles:           &worldMap,
+		Tiles:           worldMap,
 	}
 	return &world
 }
 
-func PrintMap(world *types.World) error {
+func FloodMap(world *World) *World {
+	worldMap := world.Tiles
+	for k := 0; k < len(worldMap); k++ {
+		row := &worldMap[k]
+		for l := 0; l < len(*row); l++ {
+			col := world.GetTile(k, l)
+			if col.Elevation < 0 {
+				col.GeoType = 1
+			}
+		}
+	}
+	return world
+}
+
+func PrintMap(world *World) error {
 	worldMap := world.Tiles
 	stringArray := []string{}
-	for _, row := range *worldMap {
+	for _, row := range worldMap {
 		rowString := ""
 		for _, col := range row {
 			rowString += types.Symbols[types.GeoTypes[col.GeoType]]
@@ -116,10 +165,10 @@ func PrintMap(world *types.World) error {
 	return nil
 }
 
-func PrintElevationMap(world *types.World) error {
+func PrintElevationMap(world *World) error {
 	worldMap := world.Tiles
 	stringArray := []string{}
-	for _, row := range *worldMap {
+	for _, row := range worldMap {
 		rowString := ""
 		for _, col := range row {
 			if col.Elevation > 0 {

@@ -8,7 +8,8 @@ import (
 
 func main() {
 	fmt.Println("GENERATING WORLD")
-	world := geogen.GenerateThenFloodBasicMap(50, 50, "flooded")
+	world := geogen.GenerateBasicMap(50, 50, "flooded")
+	world = geogen.FloodMap(world)
 	fmt.Println("PRINTING MAP")
 	err := geogen.PrintMap(world)
 	if err != nil {
