@@ -48,7 +48,7 @@ func (w *World) GetSurroundingTiles(y int, x int) []*types.Tile {
 	return tiles
 }
 
-func GenerateBasicMap(xVal int, yVal int, name string) *World {
+func GenerateBasicMap(xVal int, yVal int, minElev int, maxElev int, name string) *World {
 	worldMap := [][]types.Tile{}
 	fmt.Println(types.GeoTypes[2])
 	fmt.Println(types.Symbols[types.GeoTypes[2]])
@@ -59,7 +59,7 @@ func GenerateBasicMap(xVal int, yVal int, name string) *World {
 				X:         j,
 				Y:         i,
 				GeoType:   2,
-				Elevation: utils.Random(-8, 8),
+				Elevation: utils.Random(minElev, maxElev),
 			}
 			row = append(row, tile)
 		}
@@ -186,7 +186,6 @@ func NormalizeElevation(world *World, passes int) *World {
 func GenerateCoastalOffset(world *World, tOffset int, rOffset int, bOffset int, lOffset int) *World {
 	worldMap := world.Tiles
 	if rOffset > 0 {
-		fmt.Println("RIGHT OFFSET")
 		for r := 0; r <= rOffset; r++ {
 			for y := 0; y < len(worldMap); y++ {
 				row := &worldMap[y]
@@ -204,7 +203,6 @@ func GenerateCoastalOffset(world *World, tOffset int, rOffset int, bOffset int, 
 	}
 
 	if lOffset > 0 {
-		fmt.Println("LEFT OFFSET")
 		for l := 0; l <= lOffset; l++ {
 			for y := 0; y < len(worldMap); y++ {
 				row := &worldMap[y]
@@ -222,7 +220,6 @@ func GenerateCoastalOffset(world *World, tOffset int, rOffset int, bOffset int, 
 	}
 
 	if tOffset > 0 {
-		fmt.Println("TOP OFFSET")
 		for t := 0; t <= tOffset; t++ {
 			for y := 0; y < len(worldMap); y++ {
 				row := &worldMap[y]
@@ -241,7 +238,6 @@ func GenerateCoastalOffset(world *World, tOffset int, rOffset int, bOffset int, 
 	}
 
 	if bOffset > 0 {
-		fmt.Println("BOTTOM OFFSET")
 		for b := 0; b <= bOffset; b++ {
 			for y := 0; y < len(worldMap); y++ {
 				row := &worldMap[y]
@@ -256,6 +252,62 @@ func GenerateCoastalOffset(world *World, tOffset int, rOffset int, bOffset int, 
 				}
 			}
 
+		}
+	}
+	return world
+}
+
+func RemoveOutliers(world *World, passes int) *World {
+	worldMap := world.Tiles
+	for i := 0; i < passes; i++ {
+		for k := 0; k < len(worldMap); k++ {
+			row := &worldMap[k]
+			for l := 0; l < len(*row); l++ {
+				tile := world.GetTile(k, l)
+				tiles := world.GetSurroundingTiles(k, l)
+				seaCount := 0
+				landCount := 0
+				for _, t := range tiles {
+					if t.GeoType == 1 {
+						seaCount++
+					}
+					if t.GeoType == 2 {
+						landCount++
+					}
+				}
+				if seaCount < 3 {
+					tile.GeoType = 2
+				}
+				if landCount < 3 {
+					tile.GeoType = 1
+				}
+			}
+		}
+	}
+	return world
+}
+
+func RemoveSmallLakes(world *World, passes int) *World {
+	worldMap := world.Tiles
+	for i := 0; i < passes; i++ {
+		for k := 0; k < len(worldMap); k++ {
+			row := &worldMap[k]
+			for l := 0; l < len(*row); l++ {
+				tile := world.GetTile(k, l)
+				if tile.GeoType == 1 {
+					tiles := world.GetSurroundingTiles(k, l)
+					seaCount := 0
+					for _, t := range tiles {
+						if t.GeoType == 1 {
+							seaCount++
+						}
+					}
+					if seaCount < 4 {
+						tile.GeoType = 2
+					}
+				}
+
+			}
 		}
 	}
 	return world
