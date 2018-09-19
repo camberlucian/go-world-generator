@@ -13,6 +13,8 @@ import (
 type World struct {
 	PrintedFileName string
 	CodedFileName   string
+	Height          int
+	Width           int
 	Tiles           [][]types.Tile
 }
 
@@ -25,7 +27,7 @@ func (w *World) GetSurroundingTiles(y int, x int) []*types.Tile {
 		Y int
 		X int
 	}
-	width := len(w.Tiles[0]) - 1
+	width := w.Width
 	potentials := []pair{}
 	tiles := []*types.Tile{}
 	potentials = append(potentials, pair{y + 1, x - 1})
@@ -66,6 +68,8 @@ func GenerateBasicMap(xVal int, yVal int, name string) *World {
 		PrintedFileName: name + "-Printed.txt",
 		CodedFileName:   name + "-Coded.csv",
 		Tiles:           worldMap,
+		Height:          yVal,
+		Width:           xVal,
 	}
 	return &world
 }
@@ -100,6 +104,8 @@ func GenerateThenFloodBasicMap(xVal int, yVal int, name string) *World {
 		PrintedFileName: name + "-Printed.txt",
 		CodedFileName:   name + "-Coded.csv",
 		Tiles:           worldMap,
+		Height:          yVal,
+		Width:           xVal,
 	}
 	return &world
 }
@@ -129,6 +135,8 @@ func GenerateBasicIsland(xVal int, yVal int, offset int, name string) *World {
 		PrintedFileName: name + "-Printed.txt",
 		CodedFileName:   name + "-Coded.csv",
 		Tiles:           worldMap,
+		Height:          yVal,
+		Width:           xVal,
 	}
 	return &world
 }
@@ -142,6 +150,106 @@ func FloodMap(world *World) *World {
 			if col.Elevation < 0 {
 				col.GeoType = 1
 			}
+		}
+	}
+	return world
+}
+
+func NormalizeElevation(world *World, passes int) *World {
+	worldMap := world.Tiles
+	for n := 0; n < passes; n++ {
+		for k := 0; k < len(worldMap); k++ {
+			row := &worldMap[k]
+			for l := 0; l < len(*row); l++ {
+				tile := world.GetTile(k, l)
+				tiles := world.GetSurroundingTiles(k, l)
+				AverageElev := 0
+				for _, t := range tiles {
+					AverageElev += t.Elevation
+				}
+				AverageElev = AverageElev / len(tiles)
+				if tile.Elevation > AverageElev {
+					tile.Elevation--
+				} else if tile.Elevation < AverageElev {
+					tile.Elevation++
+				}
+			}
+		}
+
+	}
+	return world
+
+}
+
+func GenerateCoastalOffset(world *World, tOffset int, rOffset int, bOffset int, lOffset int) *World {
+	worldMap := world.Tiles
+	if rOffset > 0 {
+		for r := 0; r <= rOffset; r++ {
+			for y := 0; y < len(worldMap); y++ {
+				row := &worldMap[y]
+				for x := 0; x < len(*row); x++ {
+					if x == world.Width-(rOffset-r) {
+						col := world.GetTile(y, x)
+						col.Elevation = col.Elevation - r
+						if col.Elevation < 1 {
+							col.GeoType = 1
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if lOffset > 0 {
+		for l := 0; l <= lOffset; l++ {
+			for y := 0; y < len(worldMap); y++ {
+				row := &worldMap[y]
+				for x := 0; x < len(*row); x++ {
+					if x == 0+(lOffset-l) {
+						col := world.GetTile(y, x)
+						col.Elevation = col.Elevation - l
+						if col.Elevation < 1 {
+							col.GeoType = 1
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if tOffset > 0 {
+		for t := 0; t <= tOffset; t++ {
+			for y := 0; y < len(worldMap); y++ {
+				row := &worldMap[y]
+				for x := 0; x < len(*row); x++ {
+					if y == 0+(tOffset-t) {
+						col := world.GetTile(y, x)
+						col.Elevation = col.Elevation - t
+						if col.Elevation < 1 {
+							col.GeoType = 1
+						}
+					}
+				}
+			}
+
+		}
+	}
+
+	if bOffset > 0 {
+		for b := 0; b <= bOffset; b++ {
+			for y := 0; y < len(worldMap); y++ {
+				row := &worldMap[y]
+				for x := 0; x < len(*row); x++ {
+					if y == world.Height-(bOffset-b) {
+						col := world.GetTile(y, x)
+						col.Elevation = col.Elevation - b
+						if col.Elevation < 1 {
+							col.GeoType = 1
+						}
+					}
+				}
+			}
+
 		}
 	}
 	return world
