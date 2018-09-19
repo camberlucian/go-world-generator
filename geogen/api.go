@@ -19,6 +19,7 @@ type World struct {
 }
 
 func (w *World) GetTile(y int, x int) *types.Tile {
+	// fmt.Println(strconv.Itoa(y) + " " + strconv.Itoa(x))
 	return &w.Tiles[y][x]
 }
 
@@ -39,7 +40,7 @@ func (w *World) GetSurroundingTiles(y int, x int) []*types.Tile {
 	potentials = append(potentials, pair{y - 1, x})
 	potentials = append(potentials, pair{y - 1, x + 1})
 	for _, p := range potentials {
-		if p.X < 0 || p.Y < 0 || p.X > width || p.Y > width {
+		if p.X < 0 || p.Y < 0 || p.X > width-1 || p.Y > w.Height-1 {
 			continue
 		}
 		tiles = append(tiles, w.GetTile(p.Y, p.X))
@@ -158,6 +159,7 @@ func FloodMap(world *World) *World {
 func NormalizeElevation(world *World, passes int) *World {
 	worldMap := world.Tiles
 	for n := 0; n < passes; n++ {
+		fmt.Println("PASS: " + strconv.Itoa(n))
 		for k := 0; k < len(worldMap); k++ {
 			row := &worldMap[k]
 			for l := 0; l < len(*row); l++ {
@@ -184,6 +186,7 @@ func NormalizeElevation(world *World, passes int) *World {
 func GenerateCoastalOffset(world *World, tOffset int, rOffset int, bOffset int, lOffset int) *World {
 	worldMap := world.Tiles
 	if rOffset > 0 {
+		fmt.Println("RIGHT OFFSET")
 		for r := 0; r <= rOffset; r++ {
 			for y := 0; y < len(worldMap); y++ {
 				row := &worldMap[y]
@@ -201,6 +204,7 @@ func GenerateCoastalOffset(world *World, tOffset int, rOffset int, bOffset int, 
 	}
 
 	if lOffset > 0 {
+		fmt.Println("LEFT OFFSET")
 		for l := 0; l <= lOffset; l++ {
 			for y := 0; y < len(worldMap); y++ {
 				row := &worldMap[y]
@@ -218,6 +222,7 @@ func GenerateCoastalOffset(world *World, tOffset int, rOffset int, bOffset int, 
 	}
 
 	if tOffset > 0 {
+		fmt.Println("TOP OFFSET")
 		for t := 0; t <= tOffset; t++ {
 			for y := 0; y < len(worldMap); y++ {
 				row := &worldMap[y]
@@ -236,6 +241,7 @@ func GenerateCoastalOffset(world *World, tOffset int, rOffset int, bOffset int, 
 	}
 
 	if bOffset > 0 {
+		fmt.Println("BOTTOM OFFSET")
 		for b := 0; b <= bOffset; b++ {
 			for y := 0; y < len(worldMap); y++ {
 				row := &worldMap[y]
