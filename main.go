@@ -18,7 +18,7 @@ func GenerateWorld() {
 	fmt.Println("NORMALIZING ELEVATION")
 	world = geogen.NormalizeElevation(world, 3)
 	fmt.Println("GENERATING COASTS")
-	world = geogen.GenerateCoastalOffset(world, 0, 6, 6, 0, 7)
+	world = geogen.GenerateCoastalOffset(world, 4, 6, 6, 4, 7)
 	fmt.Println("FLOODING MAP")
 	world = geogen.FloodMap(world)
 	fmt.Println("REMOVING OUTLIERS")

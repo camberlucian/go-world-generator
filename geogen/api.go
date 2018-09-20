@@ -285,9 +285,15 @@ func RemoveOutliers(world *World, passes int) *World {
 				}
 				if seaCount < 3 {
 					tile.GeoType = 2
+					if tile.Elevation < 1 {
+						tile.Elevation++
+					}
 				}
 				if landCount < 3 {
 					tile.GeoType = 1
+					if tile.Elevation > 0 {
+						tile.Elevation = 0
+					}
 				}
 			}
 		}
