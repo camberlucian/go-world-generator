@@ -3,6 +3,8 @@ package filemanager
 import (
 	"errors"
 	"fmt"
+	"image"
+	"image/png"
 	"os"
 	"path/filepath"
 )
@@ -29,6 +31,7 @@ func GetOrCreateFile(fileName string, overwrite bool) (file *os.File, err error)
 		return file, errors.New("GetOrCreateFileError: " + err.Error())
 	}
 	path := filepath.Join(wd, "filemanager", "files", fileName)
+	fmt.Println("GETTING OR CREATING FILE AT: " + path)
 
 	if _, err = os.Stat(path); os.IsNotExist(err) {
 		fmt.Println("File Doesnt Exist")
@@ -38,6 +41,7 @@ func GetOrCreateFile(fileName string, overwrite bool) (file *os.File, err error)
 		}
 		fmt.Println("CREATED")
 	} else if overwrite {
+		fmt.Println("REMOVING FILE")
 		err := os.Remove(path)
 		if err != nil {
 			return file, errors.New("GetOrCreateFileError: " + err.Error())
@@ -56,4 +60,16 @@ func GetOrCreateFile(fileName string, overwrite bool) (file *os.File, err error)
 
 	fmt.Println("Returning File")
 	return file, nil
+}
+
+func ExportImage(m image.Image, fileName string) error {
+	file, err := GetOrCreateFile(fileName, true)
+	if err != nil {
+		fmt.Println("Could not get or create file: " + err.Error())
+	}
+	err = png.Encode(file, m)
+	if err != nil {
+		fmt.Println("COULD NOT WRITE IMAGE: " + err.Error())
+	}
+	return err
 }

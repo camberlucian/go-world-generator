@@ -8,29 +8,32 @@ import (
 )
 
 func main() {
-	render.RenderSolidImage()
+	GenerateWorld()
 
 }
 
 func GenerateWorld() {
 	fmt.Println("GENERATING WORLD")
-	world := geogen.GenerateBasicMap(50, 50, -16, 18, "coasts")
+	world := geogen.GenerateBasicMap(200, 200, -8, 8, "fullmap")
 	fmt.Println("NORMALIZING ELEVATION")
-	world = geogen.NormalizeElevation(world, 7)
+	world = geogen.NormalizeElevation(world, 3)
 	fmt.Println("GENERATING COASTS")
-	world = geogen.GenerateCoastalOffset(world, 0, 6, 6, 0)
+	world = geogen.GenerateCoastalOffset(world, 0, 50, 50, 0)
 	fmt.Println("FLOODING MAP")
 	world = geogen.FloodMap(world)
 	fmt.Println("REMOVING OUTLIERS")
-	world = geogen.RemoveOutliers(world, 5)
+	world = geogen.RemoveOutliers(world, 20)
 	fmt.Println("REMOVING SMALL LAKES")
 	world = geogen.RemoveSmallLakes(world, 2)
 	fmt.Println("REMOVING OUTLIERS")
 	world = geogen.RemoveOutliers(world, 1)
 	fmt.Println("REMOVING SMALL LAKES")
-	world = geogen.RemoveSmallLakes(world, 1)
+	world = geogen.RemoveSmallLakes(world, 10)
+	fmt.Println("GENERATING RIVERS")
+	world = geogen.RiverGen(world, 1)
 	fmt.Println("PRINTING MAP")
-	err := geogen.PrintMap(world)
+	//
+	err := render.DrawWorldMap(world, 50)
 	if err != nil {
 		fmt.Println("ERROR: " + err.Error())
 	} else {

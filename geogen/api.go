@@ -13,6 +13,7 @@ import (
 type World struct {
 	PrintedFileName string
 	CodedFileName   string
+	ImageFileName   string
 	Height          int
 	Width           int
 	Tiles           [][]types.Tile
@@ -68,6 +69,7 @@ func GenerateBasicMap(xVal int, yVal int, minElev int, maxElev int, name string)
 	world := World{
 		PrintedFileName: name + "-Printed.txt",
 		CodedFileName:   name + "-Coded.csv",
+		ImageFileName:   name + "-Image.png",
 		Tiles:           worldMap,
 		Height:          yVal,
 		Width:           xVal,
@@ -104,6 +106,7 @@ func GenerateThenFloodBasicMap(xVal int, yVal int, name string) *World {
 	world := World{
 		PrintedFileName: name + "-Printed.txt",
 		CodedFileName:   name + "-Coded.csv",
+		ImageFileName:   name + "-Image.png",
 		Tiles:           worldMap,
 		Height:          yVal,
 		Width:           xVal,
@@ -135,6 +138,7 @@ func GenerateBasicIsland(xVal int, yVal int, offset int, name string) *World {
 	world := World{
 		PrintedFileName: name + "-Printed.txt",
 		CodedFileName:   name + "-Coded.csv",
+		ImageFileName:   name + "-Image.png",
 		Tiles:           worldMap,
 		Height:          yVal,
 		Width:           xVal,
@@ -282,6 +286,28 @@ func RemoveOutliers(world *World, passes int) *World {
 				}
 			}
 		}
+	}
+	return world
+}
+
+func RiverGen(world *World, passes int) *World {
+	worldMap := world.Tiles
+	for n := 0; n < passes; n++ {
+		for k := 0; k < len(worldMap); k++ {
+			row := &worldMap[k]
+			for l := 0; l < len(*row); l++ {
+				tile := world.GetTile(k, l)
+				if tile.GeoType == 1 {
+					tiles := world.GetSurroundingTiles(k, l)
+					for _, t := range tiles {
+						if t.Elevation < tile.Elevation {
+							t.GeoType = 1
+						}
+					}
+				}
+			}
+		}
+
 	}
 	return world
 }
