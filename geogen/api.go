@@ -186,10 +186,15 @@ func NormalizeElevation(world *World, passes int) *World {
 
 }
 
-func GenerateCoastalOffset(world *World, tOffset int, rOffset int, bOffset int, lOffset int) *World {
+func GenerateCoastalOffset(world *World, tOffset int, rOffset int, bOffset int, lOffset int, maxDepth int) *World {
 	worldMap := world.Tiles
 	if rOffset > 0 {
 		for r := 0; r <= rOffset; r++ {
+			// slope := float64(maxDepth) / float64(rOffset)
+			// delevation := maxDepth - math.Round(r*slope)
+			// fmt.Println("DELEVATING BY")
+			// fmt.Println(delevation)
+			// fmt.Println(slope)
 			for y := 0; y < len(worldMap); y++ {
 				row := &worldMap[y]
 				for x := 0; x < len(*row); x++ {
@@ -336,6 +341,33 @@ func RemoveSmallLakes(world *World, passes int) *World {
 		}
 	}
 	return world
+}
+
+func RaiseLand(world *World, passes int) *World {
+	worldMap := world.Tiles
+	for n := 0; n < passes; n++ {
+		for k := 0; k < len(worldMap); k++ {
+			row := &worldMap[k]
+			for l := 0; l < len(*row); l++ {
+				tile := world.GetTile(k, l)
+				if tile.GeoType == 1 {
+					tiles := world.GetSurroundingTiles(k, l)
+					AverageElev := 0
+					for _, t := range tiles {
+						AverageElev += t.Elevation
+					}
+					AverageElev = AverageElev / len(tiles)
+					if tile.Elevation > AverageElev {
+						for _, t := range tiles {
+							t.Elevation++
+						}
+					}
+				}
+			}
+		}
+	}
+	return world
+
 }
 
 func PrintMap(world *World) error {

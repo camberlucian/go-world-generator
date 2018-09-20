@@ -21,6 +21,7 @@ func RenderSolidImage() {
 
 func DrawWorldMap(world *geogen.World, multiplier int) error {
 	colors := types.Colors
+	eColors := types.EColors
 	canvas := image.NewRGBA(image.Rect(0, 0, (multiplier * world.Width), (multiplier * world.Height)))
 	worldMap := world.Tiles
 	for k := 0; k < len(worldMap); k++ {
@@ -30,7 +31,12 @@ func DrawWorldMap(world *geogen.World, multiplier int) error {
 			rY := multiplier * k
 			r := image.Rect(rX, rY, (rX + multiplier), (rY + multiplier))
 			col := world.GetTile(k, l)
-			draw.Draw(canvas, r, &image.Uniform{colors[col.GeoType]}, image.ZP, draw.Src)
+			if col.GeoType == 1 {
+				draw.Draw(canvas, r, &image.Uniform{colors[col.GeoType]}, image.ZP, draw.Src)
+			} else {
+				draw.Draw(canvas, r, &image.Uniform{eColors[col.Elevation]}, image.ZP, draw.Src)
+			}
+
 		}
 	}
 	err := filemanager.ExportImage(canvas, world.ImageFileName)
