@@ -349,6 +349,71 @@ func RemoveSmallLakes(world *World, passes int) *World {
 	return world
 }
 
+func RemoveCoastalPeaks(world *World, passes int) *World {
+	worldMap := world.Tiles
+	for n := 0; n < passes; n++ {
+		for k := 0; k < len(worldMap); k++ {
+			row := &worldMap[k]
+			for l := 0; l < len(*row); l++ {
+				tile := world.GetTile(k, l)
+				if tile.Elevation > 4 {
+					coast := false
+					tiles := world.GetSurroundingTiles(k, l)
+					for _, t := range tiles {
+						if t.GeoType == 1 {
+							coast = true
+						}
+					}
+					if coast {
+						tile.Elevation = 0
+						tile.GeoType = 1
+					}
+				}
+			}
+		}
+
+	}
+	return world
+
+}
+
+func FindPeaks(world *World, peaks int) []*types.Tile {
+	finalPeaks := []*types.Tile{}
+	worldMap := world.Tiles
+	for k := 0; k < len(worldMap); k++ {
+		row := &worldMap[k]
+		for l := 0; l < len(*row); l++ {
+			tile := world.GetTile(k, l)
+			if tile.Elevation > 4 && len(finalPeaks) < peaks {
+				finalPeaks = append(finalPeaks, tile)
+			}
+		}
+	}
+	minimumSurroundingPeaks := 8
+	for len(finalPeaks) < peaks {
+		for k := 0; k < len(worldMap); k++ {
+			row := &worldMap[k]
+			for l := 0; l < len(*row); l++ {
+				tile := world.GetTile(k, l)
+				if tile.Elevation == 4 && len(finalPeaks) < peaks {
+					surroundingPeaks := 0
+					tiles := world.GetSurroundingTiles(k, l)
+					for _, t := range tiles {
+						if t.Elevation == 4 {
+							surroundingPeaks += 1
+						}
+					}
+					if surroundingPeaks >= minimumSurroundingPeaks {
+						finalPeaks = append(finalPeaks, tile)
+					}
+				}
+			}
+		}
+		minimumSurroundingPeaks--
+	}
+	return finalPeaks
+}
+
 func RaiseLand(world *World, passes int) *World {
 	worldMap := world.Tiles
 	for n := 0; n < passes; n++ {
