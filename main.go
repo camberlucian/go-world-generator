@@ -15,11 +15,11 @@ func main() {
 
 func GenerateWorld() {
 	fmt.Println("GENERATING WORLD")
-	world := geogen.GenerateBasicMap(50, 50, -8, 8, "fullmap")
+	world := geogen.GenerateBasicMap(70, 70, -8, 8, "fullmap")
 	fmt.Println("NORMALIZING ELEVATION")
 	world = geogen.NormalizeElevation(world, 3)
 	fmt.Println("GENERATING COASTS")
-	world = geogen.GenerateCoastalOffset(world, 4, 6, 6, 4, 7)
+	world = geogen.GenerateCoastalOffset(world, 0, 8, 8, 0, 7)
 	fmt.Println("FLOODING MAP")
 	world = geogen.FloodMap(world)
 	fmt.Println("REMOVING OUTLIERS")
@@ -32,7 +32,7 @@ func GenerateWorld() {
 	world = geogen.RemoveOutliers(world, 1)
 	world = geogen.RaiseLand(world, 1)
 	world = geogen.RemoveCoastalPeaks(world, 1)
-	peaks := geogen.FindPeaks(world, 4)
+	peaks := geogen.FindPeaks(world, 5)
 	fmt.Println("PEAK COUNT: " + strconv.Itoa(len(peaks)))
 	world = geogen.MakeMountainsFromPeaks(world, peaks)
 	// fmt.Println("GENERATING RIVERS")

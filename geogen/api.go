@@ -522,6 +522,120 @@ func RaiseLand(world *World, passes int) *World {
 
 }
 
+func DisperseHumidity(world *World, t bool, r, bool, b bool, l bool) *World {
+	if r {
+		h := 0
+		hDrop := 0
+		for y := 0; y < world.Height; y++ {
+			for x := world.Width - 1; x >= 0; x-- {
+				col := world.GetTile(y, x)
+				if col.GeoType == 1 {
+					h += 2
+					col.Humidity = 100
+					continue
+				}
+				nextTile := world.GetTile(y, x-1)
+				if nextTile.Elevation > col.Elevation {
+					hDrop = 2 * (nextTile.Elevation - col.Elevation)
+				} else if h > 10 {
+					hDrop = 2
+				} else {
+					hDrop = 1
+				}
+				if h > 0 {
+					h -= hDrop
+					col.Humidity += hDrop
+				}
+			}
+		}
+	}
+
+	if l {
+		h := 0
+		hDrop := 0
+		for y := 0; y < world.Height; y++ {
+			for x := 0; x < world.Width; x++ {
+				col := world.GetTile(y, x)
+				if col.GeoType == 1 {
+					h += 2
+					col.Humidity = 100
+					continue
+				}
+				nextTile := world.GetTile(y, x+1)
+				if nextTile.Elevation > col.Elevation {
+					hDrop = 2 * (nextTile.Elevation - col.Elevation)
+				} else if h > 10 {
+					hDrop = 2
+				} else {
+					hDrop = 1
+				}
+				if h > 0 {
+					h -= hDrop
+					col.Humidity += hDrop
+				}
+			}
+		}
+	}
+
+	if t {
+		h := 0
+		hDrop := 0
+		for x := 0; x < world.Width; x++ {
+			for y := 0; y < world.Height; y++ {
+				col := world.GetTile(y, x)
+				if col.GeoType == 1 {
+					h += 2
+					col.Humidity = 100
+					continue
+				}
+				nextTile := world.GetTile(y+1, x)
+				if nextTile.Elevation > col.Elevation {
+					hDrop = 2 * (nextTile.Elevation - col.Elevation)
+				} else if h > 10 {
+					hDrop = 2
+				} else {
+					hDrop = 1
+				}
+				if h > 0 {
+					h -= hDrop
+					col.Humidity += hDrop
+				}
+
+			}
+		}
+	}
+
+	if b {
+		h := 0
+		hDrop := 0
+		for x := 0; x < world.Width; x++ {
+			for y := world.Height - 1; y >= 0; y-- {
+				col := world.GetTile(y, x)
+				if col.GeoType == 1 {
+					h += 2
+					col.Humidity = 100
+					continue
+				}
+				nextTile := world.GetTile(y-1, x)
+				if nextTile.Elevation > col.Elevation {
+					hDrop = 2 * (nextTile.Elevation - col.Elevation)
+				} else if h > 10 {
+					hDrop = 2
+				} else {
+					hDrop = 1
+				}
+				if h > 0 {
+					h -= hDrop
+					col.Humidity += hDrop
+				}
+
+			}
+		}
+	}
+
+	return world
+}
+
 func PrintMap(world *World) error {
 	worldMap := world.Tiles
 	stringArray := []string{}

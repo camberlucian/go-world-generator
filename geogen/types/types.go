@@ -1,10 +1,10 @@
 package types
 
-
 type Tile struct {
 	X         int
 	Y         int
 	Elevation int
+	Humidity  int
 	GeoType   int
 	Resources []int
 	Locations []int
