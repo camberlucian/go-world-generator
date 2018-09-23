@@ -11,12 +11,13 @@ import (
 )
 
 type World struct {
-	PrintedFileName string
-	CodedFileName   string
-	ImageFileName   string
-	Height          int
-	Width           int
-	Tiles           [][]types.Tile
+	PrintedFileName   string
+	CodedFileName     string
+	ElevationFileName string
+	HumidityFileName  string
+	Height            int
+	Width             int
+	Tiles             [][]types.Tile
 }
 
 func (w *World) GetTile(y int, x int) *types.Tile {
@@ -67,12 +68,13 @@ func GenerateBasicMap(xVal int, yVal int, minElev int, maxElev int, name string)
 		worldMap = append(worldMap, row)
 	}
 	world := World{
-		PrintedFileName: name + "-Printed.txt",
-		CodedFileName:   name + "-Coded.csv",
-		ImageFileName:   name + "-Image.png",
-		Tiles:           worldMap,
-		Height:          yVal,
-		Width:           xVal,
+		PrintedFileName:   name + "-Printed.txt",
+		CodedFileName:     name + "-Coded.csv",
+		ElevationFileName: name + "-Elevation.png",
+		HumidityFileName:  name + "-Humidity.png",
+		Tiles:             worldMap,
+		Height:            yVal,
+		Width:             xVal,
 	}
 	return &world
 }
@@ -104,12 +106,13 @@ func GenerateThenFloodBasicMap(xVal int, yVal int, name string) *World {
 		}
 	}
 	world := World{
-		PrintedFileName: name + "-Printed.txt",
-		CodedFileName:   name + "-Coded.csv",
-		ImageFileName:   name + "-Image.png",
-		Tiles:           worldMap,
-		Height:          yVal,
-		Width:           xVal,
+		PrintedFileName:   name + "-Printed.txt",
+		CodedFileName:     name + "-Coded.csv",
+		ElevationFileName: name + "-Elevation.png",
+		HumidityFileName:  name + "-Humidity.png",
+		Tiles:             worldMap,
+		Height:            yVal,
+		Width:             xVal,
 	}
 	return &world
 }
@@ -136,12 +139,13 @@ func GenerateBasicIsland(xVal int, yVal int, offset int, name string) *World {
 		worldMap = append(worldMap, row)
 	}
 	world := World{
-		PrintedFileName: name + "-Printed.txt",
-		CodedFileName:   name + "-Coded.csv",
-		ImageFileName:   name + "-Image.png",
-		Tiles:           worldMap,
-		Height:          yVal,
-		Width:           xVal,
+		PrintedFileName:   name + "-Printed.txt",
+		CodedFileName:     name + "-Coded.csv",
+		ElevationFileName: name + "-Elevation.png",
+		HumidityFileName:  name + "-Humidity.png",
+		Tiles:             worldMap,
+		Height:            yVal,
+		Width:             xVal,
 	}
 	return &world
 }
