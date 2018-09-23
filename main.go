@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/camberlucian/go-world-generator/geogen"
 	"github.com/camberlucian/go-world-generator/render"
@@ -18,7 +19,7 @@ func GenerateWorld() {
 	fmt.Println("NORMALIZING ELEVATION")
 	world = geogen.NormalizeElevation(world, 3)
 	fmt.Println("GENERATING COASTS")
-	world = geogen.GenerateCoastalOffset(world, 0, 6, 6, 0, 7)
+	world = geogen.GenerateCoastalOffset(world, 4, 6, 6, 4, 7)
 	fmt.Println("FLOODING MAP")
 	world = geogen.FloodMap(world)
 	fmt.Println("REMOVING OUTLIERS")
@@ -31,11 +32,15 @@ func GenerateWorld() {
 	world = geogen.RemoveOutliers(world, 1)
 	world = geogen.RaiseLand(world, 1)
 	world = geogen.RemoveCoastalPeaks(world, 1)
+	peaks := geogen.FindPeaks(world, 4)
+	fmt.Println("PEAK COUNT: " + strconv.Itoa(len(peaks)))
+	world = geogen.MakeMountainsFromPeaks(world, peaks)
 	// fmt.Println("GENERATING RIVERS")
 	// world = geogen.RiverGen(world, 1)
 	fmt.Println("PRINTING MAP")
 	//
 	err := render.DrawWorldMap(world, 50)
+	err = geogen.PrintElevationMap(world)
 	if err != nil {
 		fmt.Println("ERROR: " + err.Error())
 	} else {

@@ -356,7 +356,7 @@ func RemoveCoastalPeaks(world *World, passes int) *World {
 			row := &worldMap[k]
 			for l := 0; l < len(*row); l++ {
 				tile := world.GetTile(k, l)
-				if tile.Elevation > 4 {
+				if tile.Elevation > 3 {
 					coast := false
 					tiles := world.GetSurroundingTiles(k, l)
 					for _, t := range tiles {
@@ -384,7 +384,7 @@ func FindPeaks(world *World, peaks int) []*types.Tile {
 		row := &worldMap[k]
 		for l := 0; l < len(*row); l++ {
 			tile := world.GetTile(k, l)
-			if tile.Elevation > 4 && len(finalPeaks) < peaks {
+			if tile.Elevation > 4 && len(finalPeaks) < peaks && tile.GeoType == 2 {
 				finalPeaks = append(finalPeaks, tile)
 			}
 		}
@@ -395,7 +395,7 @@ func FindPeaks(world *World, peaks int) []*types.Tile {
 			row := &worldMap[k]
 			for l := 0; l < len(*row); l++ {
 				tile := world.GetTile(k, l)
-				if tile.Elevation == 4 && len(finalPeaks) < peaks {
+				if tile.Elevation == 4 && len(finalPeaks) < peaks && tile.GeoType == 2 {
 					surroundingPeaks := 0
 					tiles := world.GetSurroundingTiles(k, l)
 					for _, t := range tiles {
@@ -403,15 +403,96 @@ func FindPeaks(world *World, peaks int) []*types.Tile {
 							surroundingPeaks += 1
 						}
 					}
+					if surroundingPeaks < 1 {
+						tile.Elevation--
+					}
 					if surroundingPeaks >= minimumSurroundingPeaks {
-						finalPeaks = append(finalPeaks, tile)
+						adj := PeakOrAdjacent(finalPeaks, tiles, tile)
+						if adj {
+							fmt.Println("Adjascent")
+						} else {
+							fmt.Println("Not ADJA")
+							finalPeaks = append(finalPeaks, tile)
+						}
 					}
 				}
 			}
 		}
 		minimumSurroundingPeaks--
 	}
+	for i := 0; i < len(finalPeaks); i++ {
+		fmt.Println("PEAK " + strconv.Itoa(i) + ": " + strconv.Itoa(finalPeaks[i].Y) + ", " + strconv.Itoa(finalPeaks[i].X))
+	}
 	return finalPeaks
+}
+
+func PeakOrAdjacent(peaks []*types.Tile, surroundingTiles []*types.Tile, p *types.Tile) bool {
+	adj := false
+	for _, peak := range peaks {
+		if p == peak {
+			adj = true
+		}
+	}
+	for _, tile := range surroundingTiles {
+		for _, peak := range peaks {
+			if tile == peak {
+				adj = true
+			}
+		}
+	}
+	return adj
+}
+
+func MakeMountain(world *World, tile *types.Tile) *World {
+	// fmt.Println("MAKING MOUNTAIN")
+	tiles := world.GetSurroundingTiles(tile.Y, tile.X)
+	for _, t := range tiles {
+		if t.Elevation < tile.Elevation && t.GeoType == 2 {
+			// fmt.Println("TILE ELEVATION:" + strconv.Itoa(t.Elevation))
+			t.Elevation += 1
+			if t.Elevation == 4 {
+				MakeMountain(world, t)
+			}
+		}
+	}
+	return world
+}
+
+func GradePeaks(world *World) *World {
+	worldMap := world.Tiles
+	passes := 7
+	for passes >= 3 {
+		for i := 0; i < passes; i++ {
+			for k := 0; k < len(worldMap); k++ {
+				row := &worldMap[k]
+				for l := 0; l < len(*row); l++ {
+					tile := world.GetTile(k, l)
+					tiles := world.GetSurroundingTiles(k, l)
+					for _, t := range tiles {
+						if t.Elevation == passes && tile.Elevation < t.Elevation {
+							tile.Elevation = passes - 1
+						}
+					}
+				}
+			}
+		}
+		passes--
+	}
+	return world
+
+}
+
+func MakeMountainsFromPeaks(world *World, tiles []*types.Tile) *World {
+	for _, t := range tiles {
+		if t.Elevation < 7 {
+			fmt.Println("RAISING ELEVATION")
+			t.Elevation += 1
+			fmt.Println(t.Elevation)
+		}
+		MakeMountain(world, t)
+	}
+	world = GradePeaks(world)
+	return world
 }
 
 func RaiseLand(world *World, passes int) *World {
