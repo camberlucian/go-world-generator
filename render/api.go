@@ -1,12 +1,15 @@
 package render
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
+	"strconv"
 
 	"github.com/camberlucian/go-world-generator/geogen"
+	geotypes "github.com/camberlucian/go-world-generator/geogen/types"
 
 	"github.com/camberlucian/go-world-generator/filemanager"
 	"github.com/camberlucian/go-world-generator/render/types"
@@ -47,7 +50,6 @@ func DrawElevationMap(world *geogen.World, multiplier int) error {
 }
 
 func DrawHumidityMap(world *geogen.World, multiplier int) error {
-	colors := types.Colors
 	hColors := types.HColors
 	canvas := image.NewRGBA(image.Rect(0, 0, (multiplier * world.Width), (multiplier * world.Height)))
 	worldMap := world.Tiles
@@ -58,12 +60,7 @@ func DrawHumidityMap(world *geogen.World, multiplier int) error {
 			rY := multiplier * k
 			r := image.Rect(rX, rY, (rX + multiplier), (rY + multiplier))
 			col := world.GetTile(k, l)
-			if col.GeoType == 1 {
-				draw.Draw(canvas, r, &image.Uniform{colors[col.GeoType]}, image.ZP, draw.Src)
-			} else {
-				draw.Draw(canvas, r, &image.Uniform{hColors[col.Humidity]}, image.ZP, draw.Src)
-			}
-
+			draw.Draw(canvas, r, &image.Uniform{hColors[col.Humidity]}, image.ZP, draw.Src)
 		}
 	}
 	err := filemanager.ExportImage(canvas, world.HumidityFileName)
@@ -71,4 +68,45 @@ func DrawHumidityMap(world *geogen.World, multiplier int) error {
 		fmt.Println("FAILED TO ENCODE DRAWING")
 	}
 	return err
+}
+
+func PrintMap(world *geogen.World) error {
+	worldMap := world.Tiles
+	stringArray := []string{}
+	for _, row := range worldMap {
+		rowString := ""
+		for _, col := range row {
+			rowString += geotypes.Symbols[geotypes.GeoTypes[col.GeoType]]
+		}
+		rowString += "\n"
+		stringArray = append(stringArray, rowString)
+	}
+	err := filemanager.WriteStringsToFile(&stringArray, world.PrintedFileName)
+	if err != nil {
+		return errors.New("PrintMap Error: " + err.Error())
+	}
+	return nil
+}
+
+func PrintElevationMap(world *geogen.World) error {
+	worldMap := world.Tiles
+	stringArray := []string{}
+	for _, row := range worldMap {
+		rowString := ""
+		for _, col := range row {
+			if col.Elevation > 0 {
+				rowString += (" " + strconv.Itoa(col.Elevation) + " ")
+			} else {
+				rowString += (strconv.Itoa(col.Elevation) + " ")
+			}
+
+		}
+		rowString += "\n"
+		stringArray = append(stringArray, rowString)
+	}
+	err := filemanager.WriteStringsToFile(&stringArray, world.PrintedFileName)
+	if err != nil {
+		return errors.New("PrintMap Error: " + err.Error())
+	}
+	return nil
 }

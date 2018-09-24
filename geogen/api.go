@@ -1,11 +1,9 @@
 package geogen
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 
-	"github.com/camberlucian/go-world-generator/filemanager"
 	"github.com/camberlucian/go-world-generator/geogen/types"
 	"github.com/camberlucian/go-world-generator/utils"
 )
@@ -526,157 +524,148 @@ func RaiseLand(world *World, passes int) *World {
 
 }
 
-func DisperseHumidity(world *World, t bool, r, bool, b bool, l bool) *World {
+func DisperseHumidity(world *World, t bool, r bool, b bool, l bool) *World {
 	if r {
+		fmt.Println("DISPERSING RIGHT HUMIDITY")
 		h := 0
 		hDrop := 0
 		for y := 0; y < world.Height; y++ {
 			for x := world.Width - 1; x >= 0; x-- {
 				col := world.GetTile(y, x)
 				if col.GeoType == 1 {
-					h += 2
+					h += 3
 					col.Humidity = 100
 					continue
 				}
-				nextTile := world.GetTile(y, x-1)
-				if nextTile.Elevation > col.Elevation {
-					hDrop = 2 * (nextTile.Elevation - col.Elevation)
-				} else if h > 10 {
-					hDrop = 2
+				if x > 0 {
+					nextTile := world.GetTile(y, x-1)
+					if nextTile.Elevation > col.Elevation {
+						hDrop = 3 * (nextTile.Elevation - col.Elevation)
+					} else if h > 10 {
+						hDrop = 2
+					} else {
+						hDrop = 1
+					}
+					if h > 0 {
+						h -= hDrop
+						col.Humidity += hDrop
+					}
 				} else {
-					hDrop = 1
+					if h > 0 {
+						h -= 1
+						col.Humidity += 1
+					}
+
 				}
-				if h > 0 {
-					h -= hDrop
-					col.Humidity += hDrop
-				}
+
 			}
 		}
 	}
 
 	if l {
+		fmt.Println("DISPERSING LEFT HUMIDITY")
 		h := 0
 		hDrop := 0
 		for y := 0; y < world.Height; y++ {
 			for x := 0; x < world.Width; x++ {
 				col := world.GetTile(y, x)
 				if col.GeoType == 1 {
-					h += 2
+					h += 3
 					col.Humidity = 100
 					continue
 				}
-				nextTile := world.GetTile(y, x+1)
-				if nextTile.Elevation > col.Elevation {
-					hDrop = 2 * (nextTile.Elevation - col.Elevation)
-				} else if h > 10 {
-					hDrop = 2
+				if x < world.Width-1 {
+					nextTile := world.GetTile(y, x+1)
+					if nextTile.Elevation > col.Elevation {
+						hDrop = 3 * (nextTile.Elevation - col.Elevation)
+					} else if h > 10 {
+						hDrop = 2
+					} else {
+						hDrop = 1
+					}
+					if h > 0 {
+						h -= hDrop
+						col.Humidity += hDrop
+					}
 				} else {
-					hDrop = 1
+					if h > 0 {
+						h -= 1
+						col.Humidity += 1
+					}
 				}
-				if h > 0 {
-					h -= hDrop
-					col.Humidity += hDrop
-				}
+
 			}
 		}
 	}
 
 	if t {
+		fmt.Println("DISPERSING TOP HUMIDITY")
 		h := 0
 		hDrop := 0
 		for x := 0; x < world.Width; x++ {
 			for y := 0; y < world.Height; y++ {
 				col := world.GetTile(y, x)
 				if col.GeoType == 1 {
-					h += 2
+					h += 3
 					col.Humidity = 100
 					continue
 				}
-				nextTile := world.GetTile(y+1, x)
-				if nextTile.Elevation > col.Elevation {
-					hDrop = 2 * (nextTile.Elevation - col.Elevation)
-				} else if h > 10 {
-					hDrop = 2
+				if y < world.Height-1 {
+					nextTile := world.GetTile(y+1, x)
+					if nextTile.Elevation > col.Elevation {
+						hDrop = 3 * (nextTile.Elevation - col.Elevation)
+					} else if h > 10 {
+						hDrop = 2
+					} else {
+						hDrop = 1
+					}
+					if h > 0 {
+						h -= hDrop
+						col.Humidity += hDrop
+					}
 				} else {
-					hDrop = 1
+					if h > 0 {
+						h -= 1
+						col.Humidity += 1
+					}
 				}
-				if h > 0 {
-					h -= hDrop
-					col.Humidity += hDrop
-				}
-
 			}
 		}
 	}
 
 	if b {
+		fmt.Println("DISPERSING BOTTOM HUMIDITY")
 		h := 0
 		hDrop := 0
 		for x := 0; x < world.Width; x++ {
 			for y := world.Height - 1; y >= 0; y-- {
 				col := world.GetTile(y, x)
 				if col.GeoType == 1 {
-					h += 2
+					h += 3
 					col.Humidity = 100
 					continue
 				}
-				nextTile := world.GetTile(y-1, x)
-				if nextTile.Elevation > col.Elevation {
-					hDrop = 2 * (nextTile.Elevation - col.Elevation)
-				} else if h > 10 {
-					hDrop = 2
+				if y > 0 {
+					nextTile := world.GetTile(y-1, x)
+					if nextTile.Elevation > col.Elevation {
+						hDrop = 3 * (nextTile.Elevation - col.Elevation)
+					} else if h > 10 {
+						hDrop = 2
+					} else {
+						hDrop = 1
+					}
+					if h > 0 {
+						h -= hDrop
+						col.Humidity += hDrop
+					}
 				} else {
-					hDrop = 1
+					if h > 0 {
+						h -= 1
+						col.Humidity += 1
+					}
 				}
-				if h > 0 {
-					h -= hDrop
-					col.Humidity += hDrop
-				}
-
 			}
 		}
 	}
-
 	return world
-}
-
-func PrintMap(world *World) error {
-	worldMap := world.Tiles
-	stringArray := []string{}
-	for _, row := range worldMap {
-		rowString := ""
-		for _, col := range row {
-			rowString += types.Symbols[types.GeoTypes[col.GeoType]]
-		}
-		rowString += "\n"
-		stringArray = append(stringArray, rowString)
-	}
-	err := filemanager.WriteStringsToFile(&stringArray, world.PrintedFileName)
-	if err != nil {
-		return errors.New("PrintMap Error: " + err.Error())
-	}
-	return nil
-}
-
-func PrintElevationMap(world *World) error {
-	worldMap := world.Tiles
-	stringArray := []string{}
-	for _, row := range worldMap {
-		rowString := ""
-		for _, col := range row {
-			if col.Elevation > 0 {
-				rowString += (" " + strconv.Itoa(col.Elevation) + " ")
-			} else {
-				rowString += (strconv.Itoa(col.Elevation) + " ")
-			}
-
-		}
-		rowString += "\n"
-		stringArray = append(stringArray, rowString)
-	}
-	err := filemanager.WriteStringsToFile(&stringArray, world.PrintedFileName)
-	if err != nil {
-		return errors.New("PrintMap Error: " + err.Error())
-	}
-	return nil
 }
